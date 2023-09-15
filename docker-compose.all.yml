@@ -1,0 +1,66 @@
+version: '3'
+services:
+  redis:
+    image: redis:7.0.3-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - './docker/redis:/data'
+  symapi_mysql_db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - "./docker/db:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345"
+      MYSQL_DATABASE: "symapi"
+      MYSQL_USER: "symapi"
+      MYSQL_PASSWORD: "12345"
+    ports:
+      - "3308:3306"
+    networks:
+      - default
+  symapi_adminer:
+    image: adminer:4.8.1
+    restart: always
+    ports:
+      - 8080:8080
+  symapi_php:
+    build:
+      context: .
+      dockerfile: "./docker/php/Dockerfile"
+      args:
+        PHP_VERSION: "7.4"
+        TIMEZONE: "Europe/Moscow"
+    volumes:
+      - "./app:/var/www"
+      - "cache:/var/www/var"
+    networks:
+      - default
+    links:
+      - 'symapi_mysql_db'
+  symapi_nginx:
+    build:
+      context: .
+      dockerfile: "./docker/nginx/Dockerfile"
+    environment:
+      NGINX_BACKEND_DOMAIN: "symapi.local"
+    volumes:
+      - "./app:/var/www"
+      - "cache:/var/www/var"
+    ports:
+      - "80:80"
+    networks:
+      - default
+  symapi_encore:
+    image: node:20-alpine
+    volumes:
+      - "./app:/var/www"
+    working_dir: "/var/www"
+    command: "yarn install"
+#    command: "yarn encore dev"
+volumes:
+  persistent: null
+  cache:
