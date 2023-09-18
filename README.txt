@@ -1,5 +1,6 @@
 На windows с docker.
-В папке проекта выполнить команду: docker-compose -f docker-compose.db.yml up -d
+В папке проекта выполнить команду: docker-compose -f docker-compose.all.yml up -d
+Контейнер symapi_php должен быть запущен, иначе symapi_nginx не будет работать.
 И терминале контейнера symapi_php выполнить команду: composer install и php bin/console doctrine:migrations:migrate
 
 На Linux системах.

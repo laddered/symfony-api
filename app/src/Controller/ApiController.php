@@ -98,10 +98,6 @@ class ApiController extends AbstractController
             $errorResponse = [
                 'error' => 'Ошибка авторизации в приложении',
                 'error_key' => 'signature error',
-
-
-                'test1' => $hashedStr,
-                'test2' => $request->query->get('sig'),
             ];
 
             return $this->json($errorResponse);
